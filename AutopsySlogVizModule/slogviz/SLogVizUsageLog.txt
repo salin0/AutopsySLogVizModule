@@ -1,0 +1,4 @@
+Sun Aug 18 18:15:29 CEST 2019: 0 /home/linus/NetBeansProjects/SlogViz1/slogviz/auth.log +0000
+Sun Aug 18 18:15:32 CEST 2019: 0 /home/linus/NetBeansProjects/SlogViz1/slogviz/auth.log +0000
+Sun Aug 18 18:16:03 CEST 2019: 4 /home/linus/NetBeansProjects/SlogViz1/slogviz/kern.log,/home/linus/NetBeansProjects/SlogViz1/slogviz/syslog.1,/home/linus/NetBeansProjects/SlogViz1/slogviz/syslog,/home/linus/NetBeansProjects/SlogViz1/slogviz/auth.log +0100
+Sun Aug 18 18:19:26 CEST 2019: 3 /home/linus/NetBeansProjects/SlogViz1/slogviz/kern.log,/home/linus/NetBeansProjects/SlogViz1/slogviz/auth.log +0100

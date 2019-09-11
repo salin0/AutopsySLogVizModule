@@ -28,6 +28,7 @@ import org.sleuthkit.autopsy.corecomponentinterfaces.DataContentViewer;
 import org.sleuthkit.datamodel.AbstractFile;
 import org.sleuthkit.datamodel.Content;
 import org.sleuthkit.autopsy.coreutils.Logger;
+import org.sleuthkit.datamodel.TskData.TSK_DB_FILES_TYPE_ENUM;
 import org.sleuthkit.datamodel.TskException;
 
 /**
@@ -300,9 +301,13 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
             return false;
         }
         
+        if(node.getShortDescription().startsWith("Web History")){
+            return false;
+        }
+        
         String fileName = abstractFile.getName();
-        boolean contains = fileName.matches("^.*log\\.?\\d*\\.?(gz)?$") || fileName.matches("^.*\\.evtx$") || fileName.matches("^.*places.*\\.sqlite$") || fileName.matches("^.*History$");
-        return abstractFile.getSize() > 0 && !abstractFile.isDir() && contains;
+        boolean matches = fileName.matches("^.*log\\.?\\d*\\.?(gz)?$") || fileName.matches("^.*\\.evtx$") || fileName.matches("^.*places.*\\.sqlite$") || fileName.matches("^.*History$");
+        return abstractFile.getSize() > 0 && !abstractFile.isDir() && matches;
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

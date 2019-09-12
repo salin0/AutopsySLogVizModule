@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package slogviz1;
+package AutopsySLogVizModule;
 
 import java.awt.Component;
 import java.io.BufferedWriter;
@@ -31,30 +31,68 @@ import org.sleuthkit.autopsy.coreutils.Logger;
 import org.sleuthkit.datamodel.TskData.TSK_DB_FILES_TYPE_ENUM;
 import org.sleuthkit.datamodel.TskException;
 
-/**
- *
- * @author linus
- */
+/**  
+* DataContentViewerSlogViz - a content viewer module for Autopsy, offering to use SLogViz on selected log files
+* @author  Linus Düsel
+* @version 1.0 
+* @see javax.swing.JPanel
+* @see org.sleuthkit.autopsy.corecomponentinterfaces.DataContentViewer
+*/ 
 @ServiceProvider(service = DataContentViewer.class)
 public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.sleuthkit.autopsy.corecomponentinterfaces.DataContentViewer{
     
+    /**
+     * Amount of bytes the {@link buf} reading data is long.
+     */
     public static final long READ_LENGTH = 16384;
+    /**
+     * The current users directory.
+     */
     public static final String USER_DIR_PATH = System.getProperty("user.dir");
+    /**
+     * The directory path, where this module stores all data created.
+     */
     public static final String SLOGVIZ_FILE_PATH = USER_DIR_PATH + File.separator + "slogviz";
+    /**
+     * The name of the log file, where all is stored that the SLogViz returns. This file is expected to contain SLogViz error messages.
+     */
     public static final String ERROR_LOG_NAME = "callSLogVizLog.txt";
+    /**
+     * The name of the log file, where the usage of this module is logged. Every time SLogViz is called, a new entry is created.
+     */
     public static final String USAGE_LOG_NAME = "SLogVizUsageLog.txt";
+    /**
+     * The command of the operating system that invokes Python3.
+     */
     public static final String PYTHON_COMMAND = "python";
     
-    //private ;
+    //private
+    /**
+     * The byte buffer of size {@link READ_LENGTH}, for reading data in blocks.
+     */
     private byte[] buf = new byte[(int) READ_LENGTH];
-    
+    /**
+     * The Content this module currently works with.
+     * @see Content
+     */
     private Content c;
+    /**
+     * The list of Content this module previously worked with. The must always be ordered, to have the latest Content at the front. Also each Content may only appear once in the list.
+     * @see Content
+     * @see ArrayList
+     */
     private ArrayList<Content> prev;
+    /**
+     * This stores the current ListModel of this modulesjList.
+     * @see DefaultListModel
+     * @see javax.swing.JList
+     */
     private DefaultListModel<String> listModel;
     
     /**
-     * Creates new form SlogVizJPanel
-     */
+    * Constructs a new @DataContentViewerSlogViz object. Initializes the UI and the variables. Creates the module directory, if necessary.
+    *
+    */
     public DataContentViewerSlogViz() {
         initComponents();
         this.c = null;
@@ -207,8 +245,12 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         jRadioButton1.setSelected(true);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+    * Initializes the plotting process, when the "plot timeline(s)" button was clicked. 
+    *
+    * @param evt the Event triggering the button
+    */
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
         int state = -1;
         if(jRadioButton1.isSelected()){
             state = 0;
@@ -243,6 +285,14 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         this.callPython(index, state, timeoffset);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    /**
+    * Sets the Node this module currently works on. Also changes {@link c} to the Nodes Content. 
+    *
+    * @param node the new node to work on
+    * 
+    * @see Node
+    * @see Content
+    */
     @Override
     public void setNode(Node node) {
         if(this.c != null){
@@ -258,38 +308,63 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         Lookup lookup = node.getLookup();
         this.c = lookup.lookup(Content.class); 
         resetComponent();
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    /**
+    * Return this modules title. 
+    *
+    * @return the title of this module
+    */
     @Override
     public String getTitle() {
         return "SLogViz: Log file visualization";
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    /**
+    * Return this modules tool tip. 
+    *
+    * @return the tool tip of this module
+    */
     @Override
     public String getToolTip() {
         return "SLogVIZ is designed to be a helpful tool for forensic investigations by producing visualizations of log files.";
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    /**
+    * Creates a new instance of this module.
+    * 
+    * @return returns a new instance of this module
+    */
     @Override
     public DataContentViewer createInstance() {
         return new DataContentViewerSlogViz();
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    /**
+    * Returns this instance of the module. 
+    *
+    * @return this instance of the module
+    * @see DataContentViewerSlogViz
+    */
     @Override
     public Component getComponent() {
         return this;
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    /**
+    * Resets this instance of the module to its initial state.
+    */
     @Override
     public void resetComponent() {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    /**
+    * Checks, wether a viewing type of file with this module is supported. The module supports the same file types as SLogViz does.
+    * 
+    * @param node the {@link Node} of the file the support has to be checked for
+    * @return true, if the type of file is supported, else false
+    * 
+    * @see Node
+    */
     @Override
     public boolean isSupported(Node node) {
         if (node == null) {
@@ -301,6 +376,7 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
             return false;
         }
         
+        //This check is to avoid that this module wrongly allows the plotting of artifacts produced by the "File Type Identifier" ingest module of Autopsy
         if(node.getShortDescription().startsWith("Web History")){
             return false;
         }
@@ -308,15 +384,29 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         String fileName = abstractFile.getName();
         boolean matches = fileName.matches("^.*log\\.?\\d*\\.?(gz)?$") || fileName.matches("^.*\\.evtx$") || fileName.matches("^.*places.*\\.sqlite$") || fileName.matches("^.*History$");
         return abstractFile.getSize() > 0 && !abstractFile.isDir() && matches;
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    /**
+    * Determines for a given {@link Node} if this module is the preferred way of viewing its file.
+    * 
+    * @param node the {@link Node} of the file the support has to be checked for
+    * @return always returns 7, because SLogViz has a highly specific use case
+    * 
+    * @see Node
+    */
     @Override
     public int isPreferred(Node node) {
         return 7;
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    
+   /**
+    * Calls SLogViz with the specified parameters.
+    * 
+    * @param index an array containing the indices of the list of previous file {@link prev}, which are to be plotted alongside the current Content {@link c}
+    * @param state the integer representing one of the plots SLogViz offers
+    * @param timeoffset a five digit String, starting with either a + or a -, followed by four numbers representing the time, e.g. +0200 for two hours
+    */
     private void callPython(int[] index, int state, String timeoffset) {
         try{
             String name = this.c.getName();
@@ -342,9 +432,16 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         }catch (IOException ex){
             Logger.getLogger(DataContentViewerSlogViz.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
+    /**
+    * Writes the data of a selection of this modules Contents to the disk.
+    * 
+    * @param index an array containing the indices of the list of previous file {@link prev}, which are to be written to the disk
+    * @param currentFile true, if the data of the current Content {@link c} has to be written to the disk
+    * 
+    * @see Content
+    */
     private void writeFiles(int[] index, boolean currentFile){
         if(currentFile){
             writeFile(this.c);
@@ -353,7 +450,14 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
             writeFile(this.prev.get(index1));   
         }
     }
-
+    
+    /**
+    * Writes the data of a given Content to the disk.
+    * 
+    * @param con the Content that has to be written to the disk
+    * 
+    * @see Content
+    */
     private void writeFile(Content con){
         if (con == null){
             return;
@@ -401,9 +505,15 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         if(con.getName().endsWith(".gz")){
             unzipFile(con);
         }
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    /**
+    * Unzips the data of a given Content and writes it to the disk.
+    * 
+    * @param con the Content that has to be written to the disk
+    * 
+    * @see Content
+    */
     private void unzipFile(Content con) {
         String name = con.getName();
         String pathIn = SLOGVIZ_FILE_PATH + File.separator + name;
@@ -443,11 +553,16 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         } catch (IOException ex) {
             Logger.getLogger(DataContentViewerSlogViz.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-        //Assures that the index for an object in this.prev is always the same index as in this.listModel
+    /**
+    * Add the current Content {@link c} to the ArrayList of previous Contents {@link prev}. Also maintains the structure of the ArrayList {@link prev} and of the javax.swing.JList {@link listModel}.
+    * 
+    * @see Content
+    * @see ArrayList
+    * @see javax.swing.JList
+    */
+    //Assures that the index for an object in this.prev is always the same index as in this.listModel
     private void addPreviousContent() {
         if(this.c == null){
             return;
@@ -461,12 +576,19 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         }
         String name = this.prev.get(0).getName();
         this.listModel.add(0, name);
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
+    /**
+    * Logs the usage of this module. With the given parameters a log file entry is created and appended to {@link USAGE_LOG_NAME}.
+    * 
+    * @param pathArg the file SLogViz was called with
+    * @param state the plot of SLogViz that was created
+    * @param timeoffset the time offset used by SLogViz
+    */
     private void logUsage(String pathArg, int state, String timeoffset) {
         String path = SLOGVIZ_FILE_PATH + File.separator + USAGE_LOG_NAME;
         File log = new File(path);
+        boolean exists = log.exists();
         String format = "<Date and Time>: <Type of SLogViz plot(s) called>  <Handed over files> <Used time-offset>";
         BufferedWriter outBuf;
         
@@ -483,7 +605,7 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         try { 
             Date date = new Date(); 
             String output = date + ": " + Integer.toString(state) + " " + pathArg + " " + timeoffset;
-            if(!log.exists()){
+            if(!exists){
                 outBuf.append(format);
                 outBuf.newLine();
             }
@@ -500,7 +622,6 @@ public class DataContentViewerSlogViz extends javax.swing.JPanel implements org.
         } catch (IOException ex) {
             Logger.getLogger(DataContentViewerSlogViz.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
    
 
